@@ -8,7 +8,11 @@
 using namespace std;
 
 void display() {
-    cout << "future information\n";
+    cout << "Select your route planning\n";
+    cout << "-----------------------------\n";
+    cout << "1: Independent Route Planning\n";
+    cout << "2: Restricted Route Planning\n";
+    cout << "3: Environmentally-Friendly Route Planning (driving and walking)\n";
 }
 
 vector<string> getNumbers(string line) {
