@@ -89,10 +89,57 @@ void readDistances(const char* fileName, Graph<string> &graph) {
     file.close();
 }
 
-void independent_route_planning(Graph<string> &graph) {
-    cout << "Independent route planning\n";
-}
+void calculateIndependentRoutes(Graph<string> &graph) {
+    string start, end;
+    cout << "Enter source node: ";
+    cin >> start;
+    cout << "Enter destination node: ";
+    cin >> end;
 
+    // Calcular rota principal
+    PathResult<string> primary = graph.shortestPathDriving(start, end);
+
+    if (primary.path.empty()) {
+        cout << "BestDrivingRoute:none\nAlternativeDrivingRoute:none\n";
+        return;
+    }
+
+    // Coletar nós e arestas excluídos para a rota alternativa
+    unordered_set<string> excludedNodes;
+    for (size_t i = 1; i < primary.path.size() - 1; ++i) {
+        excludedNodes.insert(primary.path[i]);
+    }
+
+    unordered_set<pair<string, string>> excludedEdges;
+    for (size_t i = 0; i < primary.path.size() - 1; ++i) {
+        string u = primary.path[i];
+        string v = primary.path[i + 1];
+        excludedEdges.insert({u, v});
+        excludedEdges.insert({v, u}); // Para grafos não direcionados
+    }
+
+    // Calcular rota alternativa
+    PathResult<string> alternative = graph.shortestPathDriving(start, end, excludedNodes, excludedEdges);
+
+    // Exibir resultados
+    cout << "BestDrivingRoute:";
+    for (size_t i = 0; i < primary.path.size(); ++i) {
+        if (i > 0) cout << ",";
+        cout << primary.path[i];
+    }
+    cout << "(" << primary.totalTime << ")\n";
+
+    if (alternative.path.empty() || alternative.totalTime < primary.totalTime) {
+        cout << "AlternativeDrivingRoute:none\n";
+    } else {
+        cout << "AlternativeDrivingRoute:";
+        for (size_t i = 0; i < alternative.path.size(); ++i) {
+            if (i > 0) cout << ",";
+            cout << alternative.path[i];
+        }
+        cout << "(" << alternative.totalTime << ")\n";
+    }
+}
 
 int main(){
     Graph<string> graph;

@@ -1,7 +1,3 @@
-//
-// Created by Admin on 20/03/2025.
-//
-
 #ifndef GRAPH_H
 #define GRAPH_H
 
@@ -10,12 +6,20 @@
 #include <queue>
 #include <limits>
 #include <algorithm>
+#include <unordered_set>
+#include <utility>
 using namespace std;
 
 template <class T>
 class Edge;
 
 #define INF std::numeric_limits<double>::max()
+
+template <class T>
+struct PathResult {
+    std::vector<std::string> path;
+    double totalTime;
+};
 
 /************************* Vertex  **************************/
 
@@ -141,6 +145,13 @@ public:
 
     int getNumVertex() const;
     std::vector<Vertex<T> *> getVertexSet() const;
+
+    PathResult<T> shortestPathDriving(
+        const std::string &start,
+        const std::string &end,
+        const std::unordered_set<std::string> &excludedNodes = {},
+        const std::unordered_set<std::pair<std::string, std::string>> &excludedEdges = {}
+    );
 
 protected:
     std::vector<Vertex<T> *> vertexSet;    // vertex set
@@ -522,6 +533,64 @@ bool Graph<T>::addBidirectionalEdge(const T &sourc, const T &dest, double w) {
     return true;
 }
 
+template <class T>
+PathResult<T> Graph<T>::shortestPathDriving(
+    const std::string &start,
+    const std::string &end,
+    const std::unordered_set<std::string> &excludedNodes,
+    const std::unordered_set<std::pair<std::string, std::string>> &excludedEdges
+) {
+    std::unordered_map<std::string, double> dist;
+    std::unordered_map<std::string, std::string> prev;
+    auto cmp = [&dist](const std::string &a, const std::string &b) { return dist[a] > dist[b]; };
+    std::priority_queue<std::string, std::vector<std::string>, decltype(cmp)> pq(cmp);
+
+    for (const auto &vertex : vertexSet) {
+        std::string code = vertex->getCode();
+        dist[code] = INF;
+    }
+    dist[start] = 0;
+    pq.push(start);
+
+    while (!pq.empty()) {
+        std::string u = pq.top();
+        pq.pop();
+
+        if (excludedNodes.count(u)) continue;
+
+        Vertex<T> *uVertex = findVertex(u);
+        if (!uVertex) continue;
+
+        for (const auto &edge : uVertex->getAdj()) {
+            std::string v = edge->getDest()->getCode();
+
+            if (excludedEdges.count({u, v}) || excludedEdges.count({v, u})) continue;
+
+            if (excludedNodes.count(v)) continue;
+
+            double weight = edge->getWeight();
+
+            if (dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                prev[v] = u;
+                pq.push(v);
+            }
+        }
+    }
+
+    std::vector<std::string> path;
+    std::string current = end;
+    while (current != "" && prev.find(current) != prev.end()) {
+        path.push_back(current);
+        current = prev[current];
+    }
+    path.push_back(start);
+    std::reverse(path.begin(), path.end());
+
+    double totalTime = (dist[end] == INF) ? -1 : dist[end];
+    return {path, totalTime};
+}
+
 inline void deleteMatrix(int **m, int n) {
     if (m != nullptr) {
         for (int i = 0; i < n; i++)
@@ -542,8 +611,4 @@ inline void deleteMatrix(double **m, int n) {
 
 template <class T>
 Graph<T>::~Graph() {
-    deleteMatrix(distMatrix, vertexSet.size());
-    deleteMatrix(pathMatrix, vertexSet.size());
-}
-
-#endif //GRAPH_H
+    delete
