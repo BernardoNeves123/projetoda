@@ -10,12 +10,13 @@
 #include <queue>
 #include <limits>
 #include <algorithm>
+#include "MutablePriorityQueue.h"
 using namespace std;
 
 template <class T>
 class Edge;
 
-#define INF std::numeric_limits<double>::max()
+#define INF numeric_limits<double>::max()
 
 /************************* Vertex  **************************/
 
@@ -122,7 +123,7 @@ public:
     /*
     * Auxiliary function to find a vertex with a given the content.
     */
-    Vertex<T> *findVertex(const string &in) const;
+    Vertex<T> *findVertex(const T &in) const;
     /*
      *  Adds a vertex with a given content or info (in) to a graph (this).
      *  Returns true if successful, and false if a vertex with that content already exists.
@@ -429,7 +430,7 @@ std::vector<Vertex<T> *> Graph<T>::getVertexSet() const {
  * Auxiliary function to find a vertex with a given content.
  */
 template <class T>
-Vertex<T> * Graph<T>::findVertex(const string &in) const {
+Vertex<T> * Graph<T>::findVertex(const T &in) const {
     for (auto v : vertexSet)
         if (v->getCode() == in)
             return v;

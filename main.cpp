@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include "graph.h"
+#include "dijkstra.cpp"
 using namespace std;
 
 void display() {
@@ -25,7 +26,21 @@ vector<string> getNumbers(string line) {
     return numbers;
 }
 
-void readLocations(const char *fileName, Graph<string> &graph) {
+vector<string> getInputNumbers(string line) {
+    vector<string> numbers;
+    stringstream ss(line);
+    string word;
+    while (getline(ss,word, ':'))
+        numbers.push_back(word);
+
+    vector<string> result;
+    result.push_back(numbers[1]);
+    result.push_back(numbers[3]);
+    return result;
+}
+
+template <class T>
+void readLocations(const char *fileName, Graph<T> &graph) {
     ifstream file(fileName);
 
     if (!file.is_open()) {
@@ -54,8 +69,8 @@ void readLocations(const char *fileName, Graph<string> &graph) {
     file.close();
 }
 
-
-void readDistances(const char* fileName, Graph<string> &graph) {
+template <class T>
+void readDistances(const char* fileName, Graph<T> &graph) {
 
     ifstream file(fileName);
     vector<string> numbers;
@@ -82,20 +97,54 @@ void readDistances(const char* fileName, Graph<string> &graph) {
 
 
         graph.addEdge(location1, location2, driving);
-        graph.addEdge(location1, location2, walking);
+        //graph.addEdge(location1, location2, walking); commented for now because the first half is only driving
 
     }
 
     file.close();
 }
 
-void independent_route_planning(Graph<string> &graph) {
-    cout << "Independent route planning\n";
+template <class T>
+void restricted_route_planning(Graph<T> &graph) {
+
+
+    const char *fileName = "../Input/input.txt";
+    ifstream inputFile(fileName);
+
+    if (!inputFile.is_open()) {
+        cout << "Error opening file " << fileName << endl;
+        exit(1);
+    }
 }
 
+//template <class T>
+//void independent_route_planning(Graph<T> &graph) {
+    //const char *fileName = "../Input/input.txt";
+    //ifstream inputFile(fileName);
+    //vector<string> numbers;
 
-int main(){
-    Graph<string> graph;
+    //if (!inputFile.is_open()) {
+        //cout << "Error opening file " << fileName << endl;
+    //}
+    //string line;
+    //getline(inputFile, line);
+    //while (getline(inputFile, line)) {
+       // numbers = getInputNumbers(line);
+    //}
+
+     //const int &source = stoi(numbers[0]);
+     //const int &destination = stoi(numbers[1]);
+
+    //dijkstra(&graph, source);
+    //vector<int> result = getPath(&graph,source,destination);
+    //for (const auto &vertex : result) {
+        //cout << vertex << ",";
+    //}
+//}
+
+template<class T>
+int run(){
+    Graph<T> graph;
     readLocations("locations1.csv",graph);
     readDistances("distances1.csv", graph);
 
@@ -116,7 +165,8 @@ int main(){
                 cout << " --------------";
                 cout << "\n";
             }
-
+        //case 2:
+            //independent_route_planning(graph);
 
 
 
@@ -125,3 +175,6 @@ int main(){
     return 0;
 }
 
+int main() {
+     run<string>();
+}
