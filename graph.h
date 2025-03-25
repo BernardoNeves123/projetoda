@@ -22,14 +22,14 @@ class Edge;
 template <class T>
 class Vertex {
 public:
-    Vertex(T in, int id, string code, int parking);
+    Vertex(T in, T id, T code, int parking);
     bool operator<(Vertex<T> & vertex) const; // // required by MutablePriorityQueue
 
     T getInfo() const;
 
     T getLoc() const;
-    int getId() const;
-    string getCode() const;
+    T getId() const;
+    T getCode() const;
     int getParking() const;
 
     std::vector<Edge<T> *> getAdj() const;
@@ -58,11 +58,13 @@ public:
     Edge<T> * addEdge(Vertex<T> *dest, double w);
     bool removeEdge(T in);
     void removeOutgoingEdges();
+    void setQueueIndex(int index) { queueIndex = index; }
+    int getQueueIndex() const { return queueIndex; }
 
 
 protected:
     T info;                // info node
-    int id;
+    T id;
     string code;
     int parking;
     std::vector<Edge<T> *> adj;  // outgoing edges
@@ -122,12 +124,12 @@ public:
     /*
     * Auxiliary function to find a vertex with a given the content.
     */
-    Vertex<T> *findVertex(const string &in) const;
+    Vertex<T> *findVertex(const T &in) const;
     /*
      *  Adds a vertex with a given content or info (in) to a graph (this).
      *  Returns true if successful, and false if a vertex with that content already exists.
      */
-    bool addVertex(const T &in, int id, string code, int parking);
+    bool addVertex(const T &in, T id, string code, int parking);
     bool removeVertex(const T &in);
 
     /*
@@ -141,6 +143,9 @@ public:
 
     int getNumVertex() const;
     std::vector<Vertex<T> *> getVertexSet() const;
+    int findVertexIdx(const T &in) const;
+
+    int findVertexIdxCode(const T &in) const;
 
 protected:
     std::vector<Vertex<T> *> vertexSet;    // vertex set
@@ -151,7 +156,7 @@ protected:
     /*
      * Finds the index of the vertex with a given content.
      */
-    int findVertexIdx(const T &in) const;
+
 };
 
 void deleteMatrix(int **m, int n);
@@ -161,7 +166,7 @@ void deleteMatrix(double **m, int n);
 /************************* Vertex  **************************/
 
 template <class T>
-Vertex<T>::Vertex(T in, int id, string code, int parking): info(in), id(id), code(code), parking(parking)  {}
+Vertex<T>::Vertex(T in, T id, T code, int parking): info(in), id(id), code(code), parking(parking)  {}
 /*
  * Auxiliary function to add an outgoing edge to a vertex (this),
  * with a given destination vertex (d) and edge weight (w).
@@ -233,12 +238,12 @@ T Vertex<T>::getLoc() const {
 }
 
 template<class T>
-int Vertex<T>::getId() const {
+T Vertex<T>::getId() const {
     return this->id;
 }
 
 template<class T>
-string Vertex<T>::getCode() const {
+T Vertex<T>::getCode() const {
     return this->code;
 }
 
@@ -429,7 +434,7 @@ std::vector<Vertex<T> *> Graph<T>::getVertexSet() const {
  * Auxiliary function to find a vertex with a given content.
  */
 template <class T>
-Vertex<T> * Graph<T>::findVertex(const string &in) const {
+Vertex<T> * Graph<T>::findVertex(const T &in) const {
     for (auto v : vertexSet)
         if (v->getCode() == in)
             return v;
@@ -442,7 +447,15 @@ Vertex<T> * Graph<T>::findVertex(const string &in) const {
 template <class T>
 int Graph<T>::findVertexIdx(const T &in) const {
     for (unsigned i = 0; i < vertexSet.size(); i++)
-        if (vertexSet[i]->getInfo() == in)
+        if (vertexSet[i]->getId() == in)
+            return i;
+    return -1;
+}
+
+template <class T>
+int Graph<T>::findVertexIdxCode(const T &in) const {
+    for (unsigned i = 0; i < vertexSet.size(); i++)
+        if (vertexSet[i]->getCode() == in)
             return i;
     return -1;
 }
@@ -451,7 +464,7 @@ int Graph<T>::findVertexIdx(const T &in) const {
  *  Returns true if successful, and false if a vertex with that content already exists.
  */
 template <class T>
-bool Graph<T>::addVertex(const T &in, int id, string code, int parking) {
+bool Graph<T>::addVertex(const T &in, T id, string code, int parking) {
     if (findVertex(in) != nullptr)
         return false;
     vertexSet.push_back(new Vertex<T>(in, id, code, parking));
