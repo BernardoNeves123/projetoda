@@ -46,6 +46,7 @@ public:
     void setParking(int parking);
     void setVisited(bool visited);
     void setProcessing(bool processing);
+    bool isIgnore() const{ return ignoreFlag;}
 
     int getLow() const;
     void setLow(int value);
@@ -60,6 +61,7 @@ public:
     void removeOutgoingEdges();
     void setQueueIndex(int index) { queueIndex = index; }
     int getQueueIndex() const { return queueIndex; }
+    void setIgnore(bool ignoreFlag){this->ignoreFlag = ignoreFlag;};
 
 
 protected:
@@ -82,6 +84,7 @@ protected:
     int queueIndex = 0; 		// required by MutablePriorityQueue and UFDS
 
     void deleteEdge(Edge<T> *edge);
+    bool ignoreFlag = false;
 };
 
 /********************** Edge  ****************************/
@@ -146,6 +149,8 @@ public:
     int findVertexIdx(const T &in) const;
 
     int findVertexIdxCode(const T &in) const;
+
+    bool avoidNodes(const T &in) const;
 
 protected:
     std::vector<Vertex<T> *> vertexSet;    // vertex set
@@ -478,12 +483,12 @@ bool Graph<T>::addVertex(const T &in, T id, string code, int parking) {
  */
 template <class T>
 bool Graph<T>::removeVertex(const T &in) {
-    for (auto it = vertexSet.begin(); it != vertexSet.end(); it++) {
-        if ((*it)->getInfo() == in) {
+    for (auto it = vertexSet.begin(); it != vertexSet.end(); ++it) {
+        if ((*it)->getId() == in) {
             auto v = *it;
             v->removeOutgoingEdges();
             for (auto u : vertexSet) {
-                u->removeEdge(v->getInfo());
+                u->removeEdge(v->getId());
             }
             vertexSet.erase(it);
             delete v;

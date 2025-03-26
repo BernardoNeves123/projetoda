@@ -32,7 +32,9 @@ void dijkstra(Graph<T> * g, const string &origin) {
     while( ! q.empty() ) {
         auto v = q.extractMin();
         for(auto e : v->getAdj()) {
+            Vertex<T> *u = e->getDest();
             auto oldDist = e->getDest()->getDist();
+            if (u->isIgnore()) continue;
             if (relax(e)) {
                 if (oldDist == INF) {
                     q.insert(e->getDest());
