@@ -201,8 +201,9 @@ void restricted_route_planning(Graph<T> graph) {
     }
 
     T source, destination;
-    T nodes;
     vector<T> avoidNodes;
+    vector<pair<T, T>> avoidSegments;
+    string includeNode;
 
     string line;
     getline(inputFile, line);
@@ -216,6 +217,10 @@ void restricted_route_planning(Graph<T> graph) {
         else if (location == "AvoidNodes") {
             avoidNodes = getNumbers(code);
         }
+        else if (location == "AvoidSegments") {
+
+        }
+        else if (location == "IncludeNode") includeNode = (code);
 
     }
 
@@ -225,16 +230,66 @@ void restricted_route_planning(Graph<T> graph) {
 
     for (const T &vertexCode : avoidNodes) {
         auto v = graph.findVertex(vertexCode);
-        v->setIgnore(true);
+        v->setIgnore(true); //nodes to not visit
     }
 
-    dijkstra(&graph, code1);
+
 
     int destIDx = graph.findVertexIdx(destination);
     Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
     string code2 = destVertex1->getCode();
 
-    vector<T> result = getPath(&graph, code1, code2);
+
+
+    vector<T> result;
+    int totalDistanceToNode = 0;
+    int totalDistanceToDest = 0;
+    int totalDistance = 0;
+
+    if (!includeNode.empty()) {
+
+        int nodeIDx = graph.findVertexIdx(includeNode);
+        Vertex<T> *nodeVertex = graph.getVertexSet()[nodeIDx];
+        string code3 = nodeVertex->getCode();
+
+        dijkstra(&graph, code1);
+        vector<T> pathtoNode = getPath(&graph, code1, code3);
+
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code3) {
+                totalDistanceToNode = vertex->getDist();
+            }
+        }
+
+        dijkstra(&graph, code3);
+        vector<T> pathNodetoDestination = getPath(&graph, code3, code2);
+
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code2) {
+                totalDistanceToDest = vertex->getDist();
+            }
+        }
+
+
+        result.insert(result.end(), pathtoNode.begin(), pathtoNode.end());
+        result.insert(result.end(), pathNodetoDestination.begin() + 1, pathNodetoDestination.end());
+
+
+
+        totalDistance =  totalDistanceToNode + totalDistanceToDest;
+
+    }
+    else {
+        dijkstra(&graph, code1);
+        result = getPath(&graph, code1, code2);
+
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code2) {
+                totalDistance = vertex->getDist();
+            }
+        }
+    }
+
 
     ofstream MyFile("output.txt");
 
@@ -243,7 +298,6 @@ void restricted_route_planning(Graph<T> graph) {
 
 
     MyFile << "RestrictedDrivingRoute:";
-    int totalDistance = 0;
 
     if (result.size() == 0) {
         MyFile << "none" << endl;
@@ -258,11 +312,7 @@ void restricted_route_planning(Graph<T> graph) {
                 MyFile << ",";
             }
         }
-        for (auto vertex : graph.getVertexSet()) {
-            if (vertex->getCode() == code2) {
-                totalDistance = vertex->getDist();
-            }
-        }
+
 
         MyFile << "(" << totalDistance << ")";
     }

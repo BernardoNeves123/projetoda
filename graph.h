@@ -100,10 +100,12 @@ public:
     Vertex<T> * getOrig() const;
     Edge<T> *getReverse() const;
     double getFlow() const;
+    bool isIgnore() const{ return ignoreFlag;}
 
     void setSelected(bool selected);
     void setReverse(Edge<T> *reverse);
     void setFlow(double flow);
+    void setIgnore(bool ignoreFlag){this->ignoreFlag = ignoreFlag;};
 protected:
     Vertex<T> * dest; // destination vertex
     double weight; // edge weight, can also be used for capacity
@@ -116,6 +118,7 @@ protected:
     Edge<T> *reverse = nullptr;
 
     double flow; // for flow-related problems
+    bool ignoreFlag = false;
 };
 
 /********************** Graph  ****************************/
