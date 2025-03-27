@@ -113,12 +113,6 @@ void independent_route_planning(Graph<T> graph) {
     Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx];
     string code1 = sourceVertex1->getCode();
 
-    if (!sourceVertex1) {
-        cout << "Error: Source vertex not found in graph." << endl;
-        return;
-    }
-
-
     dijkstra(&graph, code1);
 
     T destination = (numbers[1]);
@@ -133,7 +127,7 @@ void independent_route_planning(Graph<T> graph) {
     MyFile << "Source:" << source << endl;
     MyFile << "Destination:" << destination << endl;
 
-    // Write BestDrivingRoute
+
     MyFile << "BestDrivingRoute:";
     int totalDistance = 0;
 
@@ -143,7 +137,7 @@ void independent_route_planning(Graph<T> graph) {
         int idx = graph.findVertexIdxCode(result[i]);
         Vertex<T> *vertex = graph.getVertexSet()[idx];
 
-        MyFile << vertex->getId();  // Write vertex ID
+        MyFile << vertex->getId();
         if (i < result.size() - 1) {
             MyFile << ",";
         }
@@ -197,6 +191,82 @@ void independent_route_planning(Graph<T> graph) {
 
 }
 
+template<class T>
+void restricted_route_planning(Graph<T> graph) {
+    const char *fileName = "input.txt";
+    ifstream inputFile(fileName);
+
+    if (!inputFile.is_open()) {
+        cout << "Error opening file " << fileName << endl;
+    }
+
+    T source, destination;
+    T nodes;
+    vector<T> avoidNodes;
+
+    string line;
+    getline(inputFile, line);
+    while (getline(inputFile, line)) {
+        size_t division = line.find(":");
+        string location = line.substr(0,division);
+        string code = line.substr(division + 1);
+
+        if (location == "Source") source = (code);
+        else if (location == "Destination") destination = (code);
+        else if (location == "AvoidNodes") {
+            avoidNodes = getNumbers(code);
+        }
+
+    }
+
+    int sourceIDx = graph.findVertexIdx(source);
+    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; //Vertex of the source
+    string code1 = sourceVertex1->getCode();
+
+    for (const T &vertexCode : avoidNodes) {
+        auto v = graph.findVertex(vertexCode);
+        v->setIgnore(true);
+    }
+
+    dijkstra(&graph, code1);
+
+    int destIDx = graph.findVertexIdx(destination);
+    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
+    string code2 = destVertex1->getCode();
+
+    vector<T> result = getPath(&graph, code1, code2);
+
+    ofstream MyFile("output.txt");
+
+    MyFile << "Source:" << source << endl;
+    MyFile << "Destination:" << destination << endl;
+
+
+    MyFile << "RestrictedDrivingRoute:";
+    int totalDistance = 0;
+
+    if (result.size() == 0) {
+        MyFile << "none" << endl;
+    }
+    else {
+        for (size_t i = 0; i < result.size(); i++) {
+            int idx = graph.findVertexIdxCode(result[i]);
+            Vertex<T> *vertex = graph.getVertexSet()[idx];
+
+            MyFile << vertex->getId();  // Write vertex ID
+            if (i < result.size() - 1) {
+                MyFile << ",";
+            }
+        }
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code2) {
+                totalDistance = vertex->getDist();
+            }
+        }
+
+        MyFile << "(" << totalDistance << ")";
+    }
+}
 
 int main(){
     Graph<string> graph;
@@ -209,19 +279,9 @@ int main(){
     cin >> number;
     switch (number) {
         case 1:
-            for (const auto &vertex : graph.getVertexSet()) {
-                cout << vertex->getInfo() << "\n";
-
-                cout << "Adjacent vertices:\n";
-
-                for (const auto &edge: vertex->getAdj()) {
-                    cout << " -> " << edge->getDest()->getLoc()<< " (weight: " << edge->getWeight() << ")\n";
-                }
-                cout << " --------------";
-                cout << "\n";
-            }
-        case 2:
             independent_route_planning(graph);
+        case 2:
+            restricted_route_planning(graph);
 
 
 
