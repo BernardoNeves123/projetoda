@@ -35,8 +35,8 @@ void dijkstra(Graph<T> * g, const string &origin) {
             Vertex<T> *u = e->getDest();
             auto oldDist = e->getDest()->getDist();
             if (u->isIgnore()) continue;
+            if (e->isIgnore()) continue;
             if (relax(e)) {
-                if (e->isIgnore()) continue;
                 if (oldDist == INF) {
                     q.insert(e->getDest());
                 }

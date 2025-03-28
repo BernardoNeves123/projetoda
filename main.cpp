@@ -2,9 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <algorithm>
+
 #include <string>
-#include <set>
+
 #include "graph.h"
 #include "dijkstra.cpp"
 using namespace std;
@@ -188,7 +188,7 @@ void independent_route_planning(Graph<T> graph) {
 
         MyFile << "(" << totalDistance2 << ")";
     }
-
+    MyFile.close();
 }
 
 template<class T>
@@ -218,6 +218,26 @@ void restricted_route_planning(Graph<T> graph) {
             avoidNodes = getNumbers(code);
         }
         else if (location == "AvoidSegments") {
+            stringstream ss(code);
+
+            while (getline(ss, code, ')')) {
+                size_t open = code.find('(');
+
+                size_t comma = code.find(',',  open +1);
+
+
+                T source1 = code.substr(open + 1, comma - open - 1);
+                int sourceIDx = graph.findVertexIdx(source1);
+                Vertex<T> *sourceVertex2 = graph.getVertexSet()[sourceIDx];
+                string code4 = sourceVertex2->getCode();
+
+                T destination1 = code.substr(comma + 1);
+                int destIDx = graph.findVertexIdx(destination1);
+                Vertex<T> *destinationVertex2 = graph.getVertexSet()[destIDx];
+                string code5 = destinationVertex2->getCode();
+
+                if (auto e = graph.findEdge(code4, code5)) e->setIgnore(true);
+            }
 
         }
         else if (location == "IncludeNode") includeNode = (code);
@@ -232,7 +252,6 @@ void restricted_route_planning(Graph<T> graph) {
         auto v = graph.findVertex(vertexCode);
         v->setIgnore(true); //nodes to not visit
     }
-
 
 
     int destIDx = graph.findVertexIdx(destination);
@@ -316,6 +335,7 @@ void restricted_route_planning(Graph<T> graph) {
 
         MyFile << "(" << totalDistance << ")";
     }
+    MyFile.close();
 }
 
 int main(){
@@ -330,8 +350,10 @@ int main(){
     switch (number) {
         case 1:
             independent_route_planning(graph);
+            break;
         case 2:
             restricted_route_planning(graph);
+            break;
 
 
 

@@ -131,6 +131,8 @@ public:
     * Auxiliary function to find a vertex with a given the content.
     */
     Vertex<T> *findVertex(const T &in) const;
+
+    Edge<T> *findEdge(const T &source, const T &dest) const;
     /*
      *  Adds a vertex with a given content or info (in) to a graph (this).
      *  Returns true if successful, and false if a vertex with that content already exists.
@@ -153,7 +155,7 @@ public:
 
     int findVertexIdxCode(const T &in) const;
 
-    bool avoidNodes(const T &in) const;
+
 
 protected:
     std::vector<Vertex<T> *> vertexSet;    // vertex set
@@ -446,6 +448,17 @@ Vertex<T> * Graph<T>::findVertex(const T &in) const {
     for (auto v : vertexSet)
         if (v->getCode() == in)
             return v;
+    return nullptr;
+}
+
+template <class T>
+Edge<T> * Graph<T>::findEdge(const T &source, const T &dest) const {
+    Vertex<T> *sourceVertex = findVertex(source);
+    for (auto edge: sourceVertex->getAdj()) {
+        if (edge->getDest()->getCode() == dest) {
+            return edge;
+        }
+    }
     return nullptr;
 }
 
