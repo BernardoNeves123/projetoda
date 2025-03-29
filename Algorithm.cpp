@@ -343,4 +343,157 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
     }
     MyFile.close();
 }
+template <class T>
+void Algorithm::ecoFriendlyRoutePlanning(Graph<T> graph) {
+    const char *fileName = "input.txt";
+    ifstream inputFile(fileName);
+
+    if (!inputFile.is_open()) {
+        cout << "Error opening file " << fileName << endl;
+        return;
+    }
+
+    // Variáveis para armazenar os dados do arquivo
+    string mode;
+    T source, destination;
+    int maxWalkTime;
+    vector<T> avoidNodes;
+    vector<pair<T, T>> avoidSegments;
+
+    string line;
+    while (getline(inputFile, line)) {
+        size_t division = line.find(":");
+        string key = line.substr(0, division);
+        string value = line.substr(division + 1);
+
+        if (key == "Mode") mode = value;
+        else if (key == "Source") source = value;
+        else if (key == "Destination") destination = value;
+        else if (key == "MaxWalkTime") maxWalkTime = stoi(value);
+        else if (key == "AvoidNodes") avoidNodes = getNumbers(value);
+        else if (key == "AvoidSegments") {
+            stringstream ss(value);
+            string segment;
+            while (getline(ss, segment, ')')) {
+                size_t open = segment.find('(');
+                size_t comma = segment.find(',', open + 1);
+
+                T src = segment.substr(open + 1, comma - open - 1);
+                T dest = segment.substr(comma + 1);
+
+                avoidSegments.emplace_back(src, dest);
+            }
+        }
+    }
+    inputFile.close();
+
+    // Marcar nós e segmentos a evitar
+    for (const T &node : avoidNodes) {
+        if (auto v = graph.findVertex(node)) v->setIgnore(true);
+    }
+    for (const auto &[src, dest] : avoidSegments) {
+        if (auto e = graph.findEdge(src, dest)) e->setIgnore(true);
+    }
+
+    // Validar origem e destino
+    if (source == destination || graph.findVertex(source)->getParking() || graph.findVertex(destination)->getParking()) {
+        ofstream outputFile("output.txt");
+        outputFile << "Source:" << source << endl;
+        outputFile << "Destination:" << destination << endl;
+        outputFile << "DrivingRoute:none" << endl;
+        outputFile << "ParkingNode:none" << endl;
+        outputFile << "WalkingRoute:none" << endl;
+        outputFile << "Message: Invalid input. Origin and destination cannot be adjacent or parking nodes." << endl;
+        outputFile.close();
+        return;
+    }
+
+    // Encontrar todos os nós de estacionamento válidos
+    vector<Vertex<T> *> parkingNodes;
+    for (auto vertex : graph.getVertexSet()) {
+        if (vertex->getParking() && !vertex->isIgnore()) {
+            // Verificar se o nó é acessível de carro e a pé
+            dijkstra(&graph, source, "drive");
+            if (getPath(&graph, source, vertex->getCode()).empty()) continue;
+
+            dijkstra(&graph, vertex->getCode(), "walk");
+            if (getPath(&graph, vertex->getCode(), destination).empty()) continue;
+
+            parkingNodes.push_back(vertex);
+        }
+    }
+
+    // Calcular tempos para cada nó de estacionamento
+    struct ParkingOption {
+        Vertex<T> *parking;
+        int drivingTime;
+        int walkingTime;
+        int totalTime;
+    };
+
+    vector<ParkingOption> validOptions;
+    for (auto parking : parkingNodes) {
+        dijkstra(&graph, source, "drive");
+        int drivingTime = graph.findVertex(parking->getCode())->getDist();
+
+        dijkstra(&graph, parking->getCode(), "walk");
+        int walkingTime = graph.findVertex(destination)->getDist();
+
+        if (walkingTime <= maxWalkTime) {
+            validOptions.push_back({parking, drivingTime, walkingTime, drivingTime + walkingTime});
+        }
+    }
+
+    // Selecionar a melhor opção
+    if (validOptions.empty()) {
+        ofstream outputFile("output.txt");
+        outputFile << "Source:" << source << endl;
+        outputFile << "Destination:" << destination << endl;
+        outputFile << "DrivingRoute:none" << endl;
+        outputFile << "ParkingNode:none" << endl;
+        outputFile << "WalkingRoute:none" << endl;
+        outputFile << "Message: No valid parking node found or walking time exceeds maximum limit." << endl;
+        outputFile.close();
+        return;
+    }
+
+    auto bestOption = *min_element(validOptions.begin(), validOptions.end(), [](const ParkingOption &a, const ParkingOption &b) {
+        if (a.totalTime != b.totalTime) return a.totalTime < b.totalTime;
+        return a.walkingTime > b.walkingTime;
+    });
+
+    // Gerar o arquivo de saída
+    ofstream outputFile("output.txt");
+    outputFile << "Source:" << source << endl;
+    outputFile << "Destination:" << destination << endl;
+
+    // Rota de direção
+    dijkstra(&graph, source, "drive");
+    vector<T> drivingRoute = getPath(&graph, source, bestOption.parking->getCode());
+    outputFile << "DrivingRoute:";
+    for (size_t i = 0; i < drivingRoute.size(); i++) {
+        int idx = graph.findVertexIdxCode(drivingRoute[i]);
+        outputFile << graph.getVertexSet()[idx]->getId();
+        if (i < drivingRoute.size() - 1) outputFile << ",";
+    }
+    outputFile << "(" << bestOption.drivingTime << ")" << endl;
+
+    // Nó de estacionamento
+    outputFile << "ParkingNode:" << bestOption.parking->getId() << endl;
+
+    // Rota de caminhada
+    dijkstra(&graph, bestOption.parking->getCode(), "walk");
+    vector<T> walkingRoute = getPath(&graph, bestOption.parking->getCode(), destination);
+    outputFile << "WalkingRoute:";
+    for (size_t i = 0; i < walkingRoute.size(); i++) {
+        int idx = graph.findVertexIdxCode(walkingRoute[i]);
+        outputFile << graph.getVertexSet()[idx]->getId();
+        if (i < walkingRoute.size() - 1) outputFile << ",";
+    }
+    outputFile << "(" << bestOption.walkingTime << ")" << endl;
+
+    // Tempo total
+    outputFile << "TotalTime:" << bestOption.totalTime << endl;
+    outputFile.close();
+}
 

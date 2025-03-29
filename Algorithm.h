@@ -25,6 +25,9 @@ class Algorithm {
 
         template <class T>
         void restricted_route_planningBatchMode(Graph<T> graph);
+
+        template <class T>
+        void ecoFriendlyRoutePlanning(Graph<T> graph);
 };
 #endif // ALGORITHM_H
 

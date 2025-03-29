@@ -53,6 +53,8 @@ void Menu::display() {
         case 2:
             algorithm.restricted_route_planningBatchMode(graph);
             break;
+        case 3:
+            algorithm.ecoFriendlyRoutePlanning(graph);
         default:
             cout << "Invalid choice. Please try again." << endl;
             break;
