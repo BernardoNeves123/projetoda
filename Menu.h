@@ -39,7 +39,9 @@ void Menu::display() {
     switch (number) {
         case 1:
             int number2;
-            cout << "Enter 1 for batch mode or 2 for interactive mode: ";
+            cout << "-----------------------------\n";
+            cout << "Enter 1 for batch mode or 2 for interactive mode:\n ";
+            cout << "-----------------------------\n";
             cin >> number2;
             if (number2 == 1) {
                 algorithm.independent_route_planningBatchMode(graph);
@@ -51,8 +53,20 @@ void Menu::display() {
             break;
             
         case 2:
-            algorithm.restricted_route_planningBatchMode(graph);
+            int number3;
+            cout << "-----------------------------\n";
+            cout << "Enter 1 for batch mode or 2 for interactive mode:\n ";
+            cout << "-----------------------------\n";
+            cin >> number3;
+            if (number3 == 1) {
+                algorithm.restricted_route_planningBatchMode(graph);
+            } else if (number3 == 2) {
+                algorithm.restricted_route_planningInteractiveMode(graph);
+            } else {
+                cout << "Invalid choice. Please try again." << endl;
+            }
             break;
+;
         default:
             cout << "Invalid choice. Please try again." << endl;
             break;

@@ -208,7 +208,6 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
 
     T source, destination;
     vector<T> avoidNodes;
-    vector<pair<T, T>> avoidSegments;
     string includeNode;
 
     string line;
@@ -342,5 +341,134 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
         MyFile << "(" << totalDistance << ")";
     }
     MyFile.close();
+}
+
+template<class T>
+void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
+    cout << "Enter the source: ";
+    T source;
+    cin >> source;
+
+    int sourceIDx = graph.findVertexIdx(source);
+    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; //Vertex of the source
+    string code1 = sourceVertex1->getCode();
+    
+    cout << "Enter the destination: ";
+    T destination;
+    cin >> destination;
+
+    int destIDx = graph.findVertexIdx(destination);
+    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
+    string code2 = destVertex1->getCode();
+
+    cout << "Enter the nodes to avoid: ";
+    string avoidNodesInput;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, avoidNodesInput); // Read the avoid nodes input
+    
+    vector<T> avoidNodes = getNumbers(avoidNodesInput);
+
+    for (const T &vertexCode : avoidNodes) {
+        auto v = graph.findVertex(vertexCode);
+        v->setIgnore(true); //nodes to not visit
+    }
+
+    cout << "Enter the segments to avoid: ";
+    string avoidSegmentsInput;
+    getline(cin, avoidSegmentsInput); // Read the avoid segments input
+    
+    
+    stringstream ss(avoidSegmentsInput);
+
+    while (getline(ss, avoidSegmentsInput, ')')) {
+        size_t open = avoidSegmentsInput.find('(');
+
+        size_t comma = avoidSegmentsInput.find(',',  open +1);
+
+
+        T source1 = avoidSegmentsInput.substr(open + 1, comma - open - 1);
+        int sourceIDx = graph.findVertexIdx(source1);
+        Vertex<T> *sourceVertex2 = graph.getVertexSet()[sourceIDx];
+        string code4 = sourceVertex2->getCode();
+
+        T destination1 = avoidSegmentsInput.substr(comma + 1);
+        int destIDx = graph.findVertexIdx(destination1);
+        Vertex<T> *destinationVertex2 = graph.getVertexSet()[destIDx];
+        string code5 = destinationVertex2->getCode();
+
+        if (auto e = graph.findEdge(code4, code5)) e->setIgnore(true);
+    }
+
+    cout << "Enter the node to include: ";
+    string includeNode;
+    getline(cin, includeNode); // Read the include node
+    
+
+    vector<T> result;
+    int totalDistanceToNode = 0;
+    int totalDistanceToDest = 0;
+    int totalDistance = 0;
+
+    if (!includeNode.empty()) {
+
+        int nodeIDx = graph.findVertexIdx(includeNode);
+        Vertex<T> *nodeVertex = graph.getVertexSet()[nodeIDx];
+        string code3 = nodeVertex->getCode();
+
+        dijkstra(&graph, code1);
+        vector<T> pathtoNode = getPath(&graph, code1, code3);
+
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code3) {
+                totalDistanceToNode = vertex->getDist();
+            }
+        }
+
+        dijkstra(&graph, code3);
+        vector<T> pathNodetoDestination = getPath(&graph, code3, code2);
+
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code2) {
+                totalDistanceToDest = vertex->getDist();
+            }
+        }
+
+        result.insert(result.end(), pathtoNode.begin(), pathtoNode.end());
+        result.insert(result.end(), pathNodetoDestination.begin() + 1, pathNodetoDestination.end());
+
+        totalDistance =  totalDistanceToNode + totalDistanceToDest;
+
+    }
+    else {
+        dijkstra(&graph, code1);
+        result = getPath(&graph, code1, code2);
+
+        for (auto vertex : graph.getVertexSet()) {
+            if (vertex->getCode() == code2) {
+                totalDistance = vertex->getDist();
+            }
+        }
+    }
+
+    cout << "Source:" << source << endl;
+    cout << "Destination:" << destination << endl;
+    cout << "RestrictedDrivingRoute:";
+
+    if (result.size() == 0) {
+        cout << "none" << endl;
+    }
+    else {
+        for (size_t i = 0; i < result.size(); i++) {
+            int idx = graph.findVertexIdxCode(result[i]);
+            Vertex<T> *vertex = graph.getVertexSet()[idx];
+
+            cout << vertex->getId();  // Write vertex ID
+            if (i < result.size() - 1) {
+                cout << ",";
+            }
+        }
+
+        cout << "(" << totalDistance << ")";
+    }
 }
 
