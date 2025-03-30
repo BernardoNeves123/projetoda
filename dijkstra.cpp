@@ -16,7 +16,7 @@ bool relax(Edge<T> *edge) { // d[u] + w(u,v) < d[v]
 }
 
 template <class T>
-void dijkstra(Graph<T> * g, const string &origin) {
+void dijkstra(Graph<T> * g, const string &origin, string type) {
 
     // Initialize the vertices
     for(auto v : g->getVertexSet()) {
@@ -36,6 +36,7 @@ void dijkstra(Graph<T> * g, const string &origin) {
             auto oldDist = e->getDest()->getDist();
             if (u->isIgnore()) continue;
             if (e->isIgnore()) continue;
+            if (e->getType() != type) continue;
             if (relax(e)) {
                 if (oldDist == INF) {
                     q.insert(e->getDest());

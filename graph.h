@@ -56,7 +56,7 @@ public:
     void setIndegree(unsigned int indegree);
     void setDist(double dist);
     void setPath(Edge<T> *path);
-    Edge<T> * addEdge(Vertex<T> *dest, double w);
+    Edge<T> * addEdge(Vertex<T> *dest, double w, string type);
     bool removeEdge(T in);
     void removeOutgoingEdges();
     void setQueueIndex(int index) { queueIndex = index; }
@@ -92,7 +92,7 @@ protected:
 template <class T>
 class Edge {
 public:
-    Edge(Vertex<T> *orig, Vertex<T> *dest, double w);
+    Edge(Vertex<T> *orig, Vertex<T> *dest, double w, string type);
 
     Vertex<T> * getDest() const;
     double getWeight() const;
@@ -101,6 +101,7 @@ public:
     Edge<T> *getReverse() const;
     double getFlow() const;
     bool isIgnore() const{ return ignoreFlag;}
+    string getType() const { return type; }
 
     void setSelected(bool selected);
     void setReverse(Edge<T> *reverse);
@@ -119,6 +120,7 @@ protected:
 
     double flow; // for flow-related problems
     bool ignoreFlag = false;
+    string type; // for flow-related problems
 };
 
 /********************** Graph  ****************************/
@@ -147,7 +149,7 @@ public:
      */
     bool addEdge(const T &sourc, const T &dest, double w);
     bool removeEdge(const T &source, const T &dest);
-    bool addBidirectionalEdge(const T &sourc, const T &dest, double w);
+    bool addBidirectionalEdge(const T &sourc, const T &dest, double w, string type);
 
     int getNumVertex() const;
     std::vector<Vertex<T> *> getVertexSet() const;
@@ -182,8 +184,8 @@ Vertex<T>::Vertex(T in, T id, T code, int parking): info(in), id(id), code(code)
  * with a given destination vertex (d) and edge weight (w).
  */
 template <class T>
-Edge<T> * Vertex<T>::addEdge(Vertex<T> *d, double w) {
-    auto newEdge = new Edge<T>(this, d, w);
+Edge<T> * Vertex<T>::addEdge(Vertex<T> *d, double w, string type) {
+    auto newEdge = new Edge<T>(this, d, w, type);
     adj.push_back(newEdge);
     d->incoming.push_back(newEdge);
     return newEdge;
@@ -381,7 +383,7 @@ void Vertex<T>::deleteEdge(Edge<T> *edge) {
 /********************** Edge  ****************************/
 
 template <class T>
-Edge<T>::Edge(Vertex<T> *orig, Vertex<T> *dest, double w): orig(orig), dest(dest), weight(w) {}
+Edge<T>::Edge(Vertex<T> *orig, Vertex<T> *dest, double w, string type): orig(orig), dest(dest), weight(w), type(type) {}
 
 template <class T>
 Vertex<T> * Edge<T>::getDest() const {
@@ -544,13 +546,13 @@ bool Graph<T>::removeEdge(const T &sourc, const T &dest) {
 }
 
 template <class T>
-bool Graph<T>::addBidirectionalEdge(const T &sourc, const T &dest, double w) {
+bool Graph<T>::addBidirectionalEdge(const T &sourc, const T &dest, double w, string type) {
     auto v1 = findVertex(sourc);
     auto v2 = findVertex(dest);
     if (v1 == nullptr || v2 == nullptr)
         return false;
-    auto e1 = v1->addEdge(v2, w);
-    auto e2 = v2->addEdge(v1, w);
+    auto e1 = v1->addEdge(v2, w, type);
+    auto e2 = v2->addEdge(v1, w, type);
     e1->setReverse(e2);
     e2->setReverse(e1);
     return true;

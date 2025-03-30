@@ -16,6 +16,7 @@ public:
 #endif // MENU_H
 
 void Menu::display() {
+    cout << "-----------------------------\n";
     cout << "Select your route planning\n";
     cout << "-----------------------------\n";
     cout << "1: Independent Route Planning\n";
@@ -38,18 +39,18 @@ void Menu::display() {
     cin >> number;
     switch (number) {
         case 1:
+ 
             int number2;
             cout << "-----------------------------\n";
             cout << "Enter 1 for batch mode or 2 for interactive mode:\n ";
             cout << "-----------------------------\n";
             cin >> number2;
-            if (number2 == 1) {
-                algorithm.independent_route_planningBatchMode(graph);
-            } else if (number2 == 2) {
-                algorithm.independent_route_planningInteractiveMode(graph);
-            } else {
-                cout << "Invalid choice. Please try again." << endl;
-            }
+            if (number2 == 1) algorithm.independent_route_planningBatchMode(graph);
+            
+            else if (number2 == 2) algorithm.independent_route_planningInteractiveMode(graph);
+            
+            else cout << "Invalid choice. Please try again." << endl;
+            
             break;
             
         case 2:
@@ -65,6 +66,10 @@ void Menu::display() {
             } else {
                 cout << "Invalid choice. Please try again." << endl;
             }
+            break;
+
+        case 3:
+            algorithm.ecoFriendlyRoutePlanning(graph);
             break;
 ;
         default:

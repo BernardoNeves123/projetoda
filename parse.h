@@ -18,6 +18,7 @@ public:
     template <class T>
     void readDistances(const char* fileName, Graph<T> &graph);
 
+
 };
 #endif // PARSE_H
 
@@ -80,10 +81,11 @@ void Parse::readDistances(const char* fileName, Graph<T> &graph) {
 
 
 
-        graph.addBidirectionalEdge(location1, location2, driving);
-        //graph.addEdge(location1, location2, walking);
+        graph.addBidirectionalEdge(location1, location2, driving, "driving");
+        graph.addBidirectionalEdge(location1, location2, walking, "walking");
 
     }
 
     file.close();
 }
+
