@@ -93,24 +93,25 @@ void Algorithm::independent_route_planningBatchMode(Graph<T> graph) {
 
     MyFile << "(" << totalDistance << ")" << endl;
 
-    vector<T> verticesToRemove;
-    for (size_t i = 1; i < result.size() - 1; i++) {
-
-        verticesToRemove.push_back(result[i]);
+    
+    for (size_t i = 0; i < result.size() - 1; i++) {
+        if(i == 0){
+            if (auto e = graph.findEdge(code1, result[1])) e->setIgnore(true);
+        }
+        auto v = graph.findVertex(result[i]);
+        if(v) v->setIgnore(true);
     }
 
-    for (const T &vertexCode : verticesToRemove) {
-        auto v = graph.findVertex(vertexCode);
-        v->setIgnore(true);
-    }
-
+    
+    
 
     dijkstra(&graph, code1, "driving");
     vector<T> result2 = getPath(&graph, code1, code2);
+    
     MyFile << "AlternativeDrivingRoute:";
     int totalDistance2 = 0;
 
-    if (result2.size() == 0) {
+    if (result2.size() == 0 || result2 == result) {
         MyFile << "none" << endl;
     }
     else {
@@ -192,15 +193,12 @@ void Algorithm::independent_route_planningInteractiveMode(Graph<T> graph){
 
     cout << "(" << totalDistance << ")" << endl;
 
-    vector<T> verticesToRemove;
-    for (size_t i = 1; i < result.size() - 1; i++) {
-
-        verticesToRemove.push_back(result[i]);
-    }
-
-    for (const T &vertexCode : verticesToRemove) {
-        auto v = graph.findVertex(vertexCode);
-        v->setIgnore(true);
+    for (size_t i = 0; i < result.size() - 1; i++) {
+        if(i == 0){
+            if (auto e = graph.findEdge(code1, result[1])) e->setIgnore(true);
+        }
+        auto v = graph.findVertex(result[i]);
+        if(v) v->setIgnore(true);
     }
 
 
@@ -209,7 +207,7 @@ void Algorithm::independent_route_planningInteractiveMode(Graph<T> graph){
     cout << "AlternativeDrivingRoute:";
     int totalDistance2 = 0;
 
-    if (result2.size() == 0) {
+    if (result2.size() == 0 || result2 == result) {
         cout << "none" << endl;
     }
     else {
@@ -346,9 +344,14 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
             }
         }
 
-
-        result.insert(result.end(), pathtoNode.begin(), pathtoNode.end());
-        result.insert(result.end(), pathNodetoDestination.begin() + 1, pathNodetoDestination.end());
+        if(pathtoNode.empty() || pathNodetoDestination.empty()){
+            result.clear();
+        }
+        else{
+            result.insert(result.end(), pathtoNode.begin(), pathtoNode.end());
+            result.insert(result.end(), pathNodetoDestination.begin() + 1, pathNodetoDestination.end());
+        }
+        
 
 
 
@@ -610,22 +613,37 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
     }
     for (const auto &[src, dest] : avoidSegments) {
         if (auto e = graph.findEdge(src, dest)) e->setIgnore(true);
+        if (auto e1 = graph.findEdge(src, dest, "walking")) e1->setIgnore(true);
     }
 
 
 
     vector<Vertex<T> *> parkingNodes;
     for (auto vertex : graph.getVertexSet()) {
+
         if (vertex->getParking() && !vertex->isIgnore()) {
            
             dijkstra(&graph, source, "driving");
             if (getPath(&graph, source, vertex->getCode()).empty()) continue;
+            
 
             dijkstra(&graph, vertex->getCode(), "walking");
             if (getPath(&graph, vertex->getCode(), destination).empty()) continue;
 
             parkingNodes.push_back(vertex);
         }
+    }
+
+    if (parkingNodes.empty()) {
+        ofstream outputFile("output.txt");
+        outputFile << "Source:" << source << endl;
+        outputFile << "Destination:" << destination << endl;
+        outputFile << "DrivingRoute:None" << endl;
+        outputFile << "ParkingNode:None" << endl;
+        outputFile << "WalkingRoute:None" << endl;
+        outputFile << "Message: No Parking Spots available! "<< endl;
+        outputFile.close();
+        return;
     }
 
     struct ParkingOption {
@@ -653,9 +671,9 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
         ofstream outputFile("output.txt");
         outputFile << "Source:" << source << endl;
         outputFile << "Destination:" << destination << endl;
-        outputFile << "DrivingRoute:" << endl;
-        outputFile << "ParkingNode:" << endl;
-        outputFile << "WalkingRoute:" << endl;
+        outputFile << "DrivingRoute:None" << endl;
+        outputFile << "ParkingNode:None" << endl;
+        outputFile << "WalkingRoute:None" << endl;
         outputFile << "Message: No possible route with max. walking time of "<< maxWalkTime <<" minutes." << endl;
         outputFile.close();
         return;
@@ -772,6 +790,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
 
     for (const auto &[src, dest] : avoidSegments) {
         if (auto e = graph.findEdge(src, dest)) e->setIgnore(true);
+        if (auto e1 = graph.findEdge(src, dest, "walking")) e1->setIgnore(true);
     }
 
 
@@ -787,6 +806,17 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
 
             parkingNodes.push_back(vertex);
         }
+    }
+    if (parkingNodes.empty()) {
+        ofstream outputFile("output.txt");
+        outputFile << "Source:" << source << endl;
+        outputFile << "Destination:" << destination << endl;
+        outputFile << "DrivingRoute:None" << endl;
+        outputFile << "ParkingNode:None" << endl;
+        outputFile << "WalkingRoute:None" << endl;
+        outputFile << "Message: No Parking Spots available! "<< endl;
+        outputFile.close();
+        return;
     }
 
     struct ParkingOption {
@@ -814,9 +844,9 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
         
         cout << "Source:" << source << endl;
         cout << "Destination:" << destination << endl;
-        cout << "DrivingRoute:" << endl;
-        cout << "ParkingNode:" << endl;
-        cout << "WalkingRoute:" << endl;
+        cout << "DrivingRoute:None" << endl;
+        cout << "ParkingNode:None" << endl;
+        cout << "WalkingRoute:None" << endl;
         cout << "Message: No possible route with max. walking time of "<< maxWalkTime <<" minutes." << endl;
   
         return;

@@ -38,8 +38,8 @@ void Menu::display() {
     
     Parse parse;
     
-    parse.readLocations("CSVfiles/Loc.csv",graph);
-    parse.readDistances("CSVfiles/Dis.csv", graph);
+    parse.readLocations("CSVfiles/Locations.csv",graph);
+    parse.readDistances("CSVfiles/Distances.csv", graph);
 
     
     Algorithm algorithm;

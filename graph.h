@@ -134,7 +134,7 @@ public:
     */
     Vertex<T> *findVertex(const T &in) const;
 
-    Edge<T> *findEdge(const T &source, const T &dest) const;
+    Edge<T> *findEdge(const T &source, const T &dest, const string &type = "driving") const;
     /*
      *  Adds a vertex with a given content or info (in) to a graph (this).
      *  Returns true if successful, and false if a vertex with that content already exists.
@@ -454,10 +454,10 @@ Vertex<T> * Graph<T>::findVertex(const T &in) const {
 }
 
 template <class T>
-Edge<T> * Graph<T>::findEdge(const T &source, const T &dest) const {
+Edge<T> * Graph<T>::findEdge(const T &source, const T &dest, const string &type) const {
     Vertex<T> *sourceVertex = findVertex(source);
     for (auto edge: sourceVertex->getAdj()) {
-        if (edge->getDest()->getCode() == dest) {
+        if (edge->getDest()->getCode() == dest && edge->getType() == type) {
             return edge;
         }
     }

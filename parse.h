@@ -108,9 +108,8 @@ void Parse::readDistances(const char* fileName, Graph<T> &graph) {
 
         T location1 = numbers[0];
         T location2 = numbers[1];
-
-        if (numbers[2] == "X") continue;
-        double driving = stoi(numbers[2]);
+        double driving = INF; //maior valor possível
+        if (numbers[2] != "X")  driving = stoi(numbers[2]);
 
         double walking = stoi(numbers[3]);
 
