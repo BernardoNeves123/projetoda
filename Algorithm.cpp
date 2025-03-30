@@ -1,13 +1,22 @@
 #include "Algorithm.h"
 
-vector<string> Algorithm::getNumbers(string line){ //função para separar os números das virgulas, e pô-los dentro de um vetor
-    vector<string> numbers; //vector para guardar os números
-    stringstream ss(line); //cria um stringstream para separar os números
-    string word; //número que queremos guardar em forma de string
-    while (getline(ss,word, ',')) //vamos linha a linha, separando os números por vírgula
-        numbers.push_back(word); //guardamos os números dentro do vetor
+/**
+ * * @brief Função que ao ler uma string, separa os números por vírgula e guarda-os dentro de um vetor.
+ * * @param line A string que contém os números separados por vírgula.
+ * * @return vector<string>: devolve um vetor com os números separados por vírgula.
+ * * @details A função lê uma string, separa os números por vírgula e guarda-os dentro de um vetor.
+ * * Complexidade Temporal: O(n), onde n é o número de números separados por vírgula.
+ * * Complexidade Espacial: O(k), onde k é o número de números separados por vírgula.
+ */
 
-    return numbers; //return do vetor
+vector<string> Algorithm::getNumbers(string line){ 
+    vector<string> numbers; 
+    stringstream ss(line); 
+    string word; 
+    while (getline(ss,word, ',')) 
+        numbers.push_back(word); 
+
+    return numbers; 
 }
 
 /**
@@ -21,9 +30,11 @@ vector<string> Algorithm::getNumbers(string line){ //função para separar os n�
  * * Dentro do ficheiro output.txt, escrevemos a origem, o destino e o caminho mais curto entre os dois(com os ids), com a distância total.
  * * Depois, percorremos o vetor de forma a encontrar os vértices que estão entre a origem e o destino, e marcamos esses vértices como "ignore" para não serem visitados na próxima vez que chamarmos o dijkstra.
  * * Com o mesmo processo temos o caminho alternativo.
+ * * Complexidade Temporal: O(n + 2V(E + V) log V), onde E é o número de arestas, V é o número de vértices e n o número de linhas no input.txt, vezes 2 porque chamamos o dijkstra duas vezes.
+ * * Complexidade Espacial: O(V + E), onde V é o número de vértices e E o número de arestas.
  */
 template<class T>
-void Algorithm::independent_route_planningBatchMode(Graph<T> graph) { //função que lê o input.txt e faz o independent route planning
+void Algorithm::independent_route_planningBatchMode(Graph<T> graph) { 
     
     const char *fileName = "input.txt";
     ifstream inputFile(fileName);
@@ -107,7 +118,7 @@ void Algorithm::independent_route_planningBatchMode(Graph<T> graph) { //função
             int idx = graph.findVertexIdxCode(result2[i]);
             Vertex<T> *vertex = graph.getVertexSet()[idx];
 
-            MyFile << vertex->getId();  // Write vertex ID
+            MyFile << vertex->getId(); 
             if (i < result2.size() - 1) {
                 MyFile << ",";
             }
@@ -134,6 +145,8 @@ void Algorithm::independent_route_planningBatchMode(Graph<T> graph) { //função
  * * No terminal, damos print à origem, ao destino e ao caminho mais curto entre os dois(com os ids), com a distância total(BestDrivingRoute).
  * * Depois, percorremos o vetor de forma a encontrar os vértices que estão entre a origem e o destino, e marcamos esses vértices como "ignore" para não serem visitados na próxima vez que chamarmos o dijkstra.
  * * Com o mesmo processo temos o caminho alternativo dando print com a sua distância total(AlternativeDrivingRoute).
+ * * Complexidade Temporal: O(2V(E + V) log V), onde E é o número de arestas, V é o número de vértices. Duas vezes porque chamamos o dijkstra duas vezes.
+ * * Complexidade Espacial: O(V + E), onde V é o número de vértices e E o número de arestas.
  */
 template<class T>
 void Algorithm::independent_route_planningInteractiveMode(Graph<T> graph){
@@ -204,7 +217,7 @@ void Algorithm::independent_route_planningInteractiveMode(Graph<T> graph){
             int idx = graph.findVertexIdxCode(result2[i]);
             Vertex<T> *vertex = graph.getVertexSet()[idx];
 
-            cout << vertex->getId();  // Write vertex ID
+            cout << vertex->getId(); 
             if (i < result2.size() - 1) {
                 cout << ",";
             }
@@ -231,6 +244,8 @@ void Algorithm::independent_route_planningInteractiveMode(Graph<T> graph){
  * * Dentro do ficheiro output.txt, escrevemos a origem, o destino e o caminho mais curto entre os dois(com os ids), com a distância total.
  * * Depois, percorremos o vetor de forma a encontrar os vértices que estão entre a origem e o destino, e marcamos esses vértices como "ignore" para não serem visitados na próxima vez que chamarmos o dijkstra.
  * * Com o mesmo processo temos o caminho alternativo.
+* * Complexidade Temporal: O(n + 2V(E + V) log V), onde E é o número de arestas, V é o número de vértices e n o número de linhas no input.txt, vezes 2 porque chamamos o dijkstra duas vezes.
+ * * Complexidade Espacial: O(V + E), onde V é o número de vértices e E o número de arestas.
  */
 
 template<class T>
@@ -287,17 +302,17 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
     }
 
     int sourceIDx = graph.findVertexIdx(source);
-    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; //Vertex of the source
+    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; 
     string code1 = sourceVertex1->getCode();
 
     for (const T &vertexCode : avoidNodes) {
         auto v = graph.findVertex(vertexCode);
-        v->setIgnore(true); //nodes to not visit
+        v->setIgnore(true);
     }
 
 
     int destIDx = graph.findVertexIdx(destination);
-    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
+    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; 
     string code2 = destVertex1->getCode();
 
 
@@ -368,7 +383,7 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
             int idx = graph.findVertexIdxCode(result[i]);
             Vertex<T> *vertex = graph.getVertexSet()[idx];
 
-            MyFile << vertex->getId();  // Write vertex ID
+            MyFile << vertex->getId(); 
             if (i < result.size() - 1) {
                 MyFile << ",";
             }
@@ -392,6 +407,9 @@ void Algorithm::restricted_route_planningBatchMode(Graph<T> graph) {
  * * Depois, fazemos o dijkstra do includeNode ao destino, guardando os valores apartir do segundo vértice no mesmo vetor. A variável totalDistanceToDest guarda a distância total do caminho do includeNode ao destino.
  * * Com o totalDistanceToNode e o totalDistanceToDest, obtemos a distância total do caminho da origem ao destino.
  * * Se não houver includeNode, fazemos o dijkstra da origem ao destino, guardando os valores num vetor. A variável totalDistance guarda a distância total do caminho da origem ao destino.
+ * * Complexidade Temporal: O(k + 2V(E + V) log V), onde E é o número de arestas, V é o número de vértices e n o número de linhas no input.txt.    
+ * * Complexidade Espacial: O(V + E), onde V é o número de vértices e E é o número de arestas.
+ * 
  */
 
 template<class T>
@@ -401,7 +419,7 @@ void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
     cin >> source;
 
     int sourceIDx = graph.findVertexIdx(source);
-    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; //Vertex of the source
+    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; 
     string code1 = sourceVertex1->getCode();
     
     cout << "Enter the destination: ";
@@ -409,24 +427,24 @@ void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
     cin >> destination;
 
     int destIDx = graph.findVertexIdx(destination);
-    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
+    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; 
     string code2 = destVertex1->getCode();
 
     cout << "Enter the nodes to avoid: ";
     string avoidNodesInput;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    getline(cin, avoidNodesInput); // Read the avoid nodes input
+    getline(cin, avoidNodesInput);
     
     vector<T> avoidNodes = getNumbers(avoidNodesInput);
 
     for (const T &vertexCode : avoidNodes) {
         auto v = graph.findVertex(vertexCode);
-        v->setIgnore(true); //nodes to not visit
+        v->setIgnore(true); 
     }
 
     cout << "Enter the segments to avoid: ";
     string avoidSegmentsInput;
-    getline(cin, avoidSegmentsInput); // Read the avoid segments input
+    getline(cin, avoidSegmentsInput); 
     
     
     stringstream ss(avoidSegmentsInput);
@@ -452,7 +470,7 @@ void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
 
     cout << "Enter the node to include: ";
     string includeNode;
-    getline(cin, includeNode); // Read the include node
+    getline(cin, includeNode); 
     
 
     vector<T> result;
@@ -513,7 +531,7 @@ void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
             int idx = graph.findVertexIdxCode(result[i]);
             Vertex<T> *vertex = graph.getVertexSet()[idx];
 
-            cout << vertex->getId();  // Write vertex ID
+            cout << vertex->getId();  
             if (i < result.size() - 1) {
                 cout << ",";
             }
@@ -529,7 +547,17 @@ void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
  * * @return void: escreve dentro do output.txt, então não dá return a nada.
  * * @details A função lê o input.txt, que contém a origem, o destino, o tempo máximo a andar, os vértices para ignorar e as arestas a ignorar.
  * * No grafo ignoramos os vértices e as arestas lidos no input.txt.
- * 
+ * * Depois, dentro do set dos vertices do grafo, se o vertice tiver estacionamento, e não estiver ignorado, fazemos o dijkstra da origem ao estacionamento, e se o caminho for vazio, damos continue
+ * * Se o caminho não for vazio, fazemos o dijkstra do estacionamento ao destino, e se o caminho for vazio, damos continue.
+ * * Se o caminho não for vazio, guardamos o estacionamento dentro de um vetor.
+ * * Criamos uma struct ParkingOption, que guarda o estacionamento, o tempo de condução, o tempo a pé e o tempo total.
+ * * Depois, percorremos o vetor de estacionamentos, e guardamos o vértices válidos, os tempos de condução, a pé e o tempo total dentro de um vetor de ParkingOption.
+ * * Se o vetor de ParkingOption estiver vazio, escrevemos uma mensagem no output.txt que não há caminho possível com o tempo máximo a pé.
+ * * Se o vetor de ParkingOption não estiver vazio, obtemos a melhor opção, que é a que tem o menor tempo total, e se houver empate, a que tem o maior tempo a pé.
+ * * Já dentro do ficheiro output.txt, fazemos o dijkstra da origem ao estacionamento, e guardamos o caminho dentro de um vetor.
+ * * Depois, escrevemos a origem, o destino, o caminho de condução, o estacionamento e o caminho a pé, e o tempo total dentro do output.txt.
+ * * Complexidade Temporal: O(n + V(E + V) log V), onde E é o número de arestas, V é o número de vértices e n o número de linhas no input.txt.    
+ * * Complexidade Espacial: O(V + E), onde V é o número de vértices e E é o número de arestas.
  */
 
 template <class T>
@@ -542,7 +570,7 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
         return;
     }
 
-    // Variáveis para armazenar os dados do arquivo
+
     T mode;
     T source, destination;
     int maxWalkTime;
@@ -576,7 +604,7 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
     }
     inputFile.close();
 
-    // Marcar nós e segmentos a evitar
+
     for (const T &node : avoidNodes) {
         if (auto v = graph.findVertex(node)) v->setIgnore(true);
     }
@@ -585,11 +613,11 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
     }
 
 
-    // Encontrar todos os nós de estacionamento válidos
+
     vector<Vertex<T> *> parkingNodes;
     for (auto vertex : graph.getVertexSet()) {
         if (vertex->getParking() && !vertex->isIgnore()) {
-            // Verificar se o nó é acessível de carro e a pé
+           
             dijkstra(&graph, source, "driving");
             if (getPath(&graph, source, vertex->getCode()).empty()) continue;
 
@@ -600,7 +628,6 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
         }
     }
 
-    // Calcular tempos para cada nó de estacionamento
     struct ParkingOption {
         Vertex<T> *parking;
         int drivingTime;
@@ -621,7 +648,7 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
         }
     }
 
-    // Selecionar a melhor opção
+
     if (validOptions.empty()) {
         ofstream outputFile("output.txt");
         outputFile << "Source:" << source << endl;
@@ -639,12 +666,12 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
         return a.walkingTime > b.walkingTime;
     });
 
-    // Gerar o arquivo de saída
+ 
     ofstream outputFile("output.txt");
     outputFile << "Source:" << source << endl;
     outputFile << "Destination:" << destination << endl;
 
-    // Rota de direção
+
     dijkstra(&graph, source, "driving");
     vector<T> drivingRoute = getPath(&graph, source, bestOption.parking->getCode());
     outputFile << "DrivingRoute:";
@@ -655,10 +682,10 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
     }
     outputFile << "(" << bestOption.drivingTime << ")" << endl;
 
-    // Nó de estacionamento
+
     outputFile << "ParkingNode:" << bestOption.parking->getId() << endl;
 
-    // Rota de caminhada
+
     dijkstra(&graph, bestOption.parking->getCode(), "walking");
     vector<T> walkingRoute = getPath(&graph, bestOption.parking->getCode(), destination);
     outputFile << "WalkingRoute:";
@@ -669,11 +696,28 @@ void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
     }
     outputFile << "(" << bestOption.walkingTime << ")" << endl;
 
-    // Tempo total
+
     outputFile << "TotalTime:" << bestOption.totalTime << endl;
     outputFile.close();
 }
-
+/**
+ * * @brief Função que lê os inputs do utilizador e produz o ecoFriendly route planning, escreve no terminal.
+ * * @param graph O grafo onde vamos trabalhar, que produz as localizações com as distâncias.
+ * * @return void: dá print no terminal, então não dá return a nada.
+ * * @details A função lê os inputs do utilizador, que contém a origem, o destino, o tempo máximo a andar, os vértices para ignorar e as arestas a ignorar.
+ * * No grafo ignoramos os vértices e as arestas.
+ * * Depois, dentro do set dos vertices do grafo, se o vertice tiver estacionamento, e não estiver ignorado, fazemos o dijkstra da origem ao estacionamento, e se o caminho for vazio, damos continue
+ * * Se o caminho não for vazio, fazemos o dijkstra do estacionamento ao destino, e se o caminho for vazio, damos continue.
+ * * Se o caminho não for vazio, guardamos o estacionamento dentro de um vetor.
+ * * Criamos uma struct ParkingOption, que guarda o estacionamento, o tempo de condução, o tempo a pé e o tempo total.
+ * * Depois, percorremos o vetor de estacionamentos, e guardamos o vértices válidos, os tempos de condução, a pé e o tempo total dentro de um vetor de ParkingOption.
+ * * Se o vetor de ParkingOption estiver vazio, escrevemos uma mensagem no terminal que não há caminho possível com o tempo máximo a pé.
+ * * Se o vetor de ParkingOption não estiver vazio, obtemos a melhor opção, que é a que tem o menor tempo total, e se houver empate, a que tem o maior tempo a pé.
+ * * Fazemos o dijkstra da origem ao estacionamento, e guardamos o caminho dentro de um vetor.
+ * * Depois, damos print da origem, do destino, do caminho de condução, do estacionamento e do caminho a pé, e do tempo total no terminal.
+ * * Complexidade Temporal: O(k + V(E + V) log V), onde E é o número de arestas, V é o número de vértices e k o número de nós/arestas a evitar.    
+ * * Complexidade Espacial: O(V + E), onde V é o número de vértices e E é o número de arestas.
+ */
 template<class T>
 void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     cout << "Source:";
@@ -681,7 +725,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     cin >> source;
 
     int sourceIDx = graph.findVertexIdx(source);
-    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; //Vertex of the source
+    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; 
     string code1 = sourceVertex1->getCode();
 
     cout << "Destination:";
@@ -689,7 +733,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     cin >> destination;
 
     int destIDx = graph.findVertexIdx(destination);
-    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
+    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; 
     string code2 = destVertex1->getCode();
 
     cout << "MaxWalkTime:";
@@ -734,7 +778,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     vector<Vertex<T> *> parkingNodes;
     for (auto vertex : graph.getVertexSet()) {
         if (vertex->getParking() && !vertex->isIgnore()) {
-            // Verificar se o nó é acessível de carro e a pé
+            
             dijkstra(&graph, source, "driving");
             if (getPath(&graph, source, vertex->getCode()).empty()) continue;
 
@@ -765,7 +809,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
         }
     }
 
-    // Selecionar a melhor opção
+
     if (validOptions.empty()) {
         
         cout << "Source:" << source << endl;
@@ -787,7 +831,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     cout << "Source:" << source << endl;
     cout << "Destination:" << destination << endl;
 
-    // Rota de direção
+ 
     dijkstra(&graph, source, "driving");
     vector<T> drivingRoute = getPath(&graph, source, bestOption.parking->getCode());
     cout << "DrivingRoute:";
@@ -798,10 +842,10 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     }
     cout << "(" << bestOption.drivingTime << ")" << endl;
 
-    // Nó de estacionamento
+ 
     cout << "ParkingNode:" << bestOption.parking->getId() << endl;
 
-    // Rota de caminhada
+
     dijkstra(&graph, bestOption.parking->getCode(), "walking");
     vector<T> walkingRoute = getPath(&graph, bestOption.parking->getCode(), destination);
     cout << "WalkingRoute:";
@@ -812,7 +856,7 @@ void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
     }
     cout << "(" << bestOption.walkingTime << ")" << endl;
 
-    // Tempo total
+
     cout << "TotalTime:" << bestOption.totalTime << endl;
     
 }

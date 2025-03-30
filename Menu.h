@@ -10,18 +10,21 @@ using namespace std;
 
 /**
  * @class Menu
- * @brief A classe oferece ao utilizador uma interface papra poder escolher o tipo de route e se é em BatchMode ou através de inputs.
+ * @brief A classe oferece ao utilizador uma interface para poder escolher o tipo de route e se é em BatchMode ou através de inputs.
  */
 class Menu {
 public:
     /**
-     * * @brief Função que fornce a interface para escolher o plano de rota.
+     * * @brief Função que fornce a interface para escolher o plano de rota, que pode ser através de inputs do utilizador ou através do input.txt/output.txt.
      */
     void display(); 
 };
 
 #endif // MENU_H
-
+/**
+ * * @brief Função que fornece a interface para escolher o plano de rota, que pode ser através de inputs do utilizador ou através do input.txt/output.txt.
+ * * Os diferentes tipos de rotas são: independent, restricted e environmentally-friendly.
+ */
 void Menu::display() {
     cout << "-----------------------------\n";
     cout << "Select your route planning\n";

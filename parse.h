@@ -10,18 +10,44 @@
 #include "Algorithm.h"
 #include "graph.h"
 
+/**
+ * * @class Parse
+ * * @brief A classe lê os ficheiros CSV e guarda as localizações e distâncias dentro do grafo.
+ * * @details A classe contém dois métodos: readLocations e readDistances.
+ */
+
 class Parse {
 public:
+
+    /**
+     * * @brief Função que lê o ficheiro CSV com as localizações e guarda-as dentro do grafo como vértices.
+     * * @param fileName O nome do ficheiro CSV com as localizações.
+     * * @param graph O grafo onde vamos guardar as localizações.
+     */
     template <class T>
     void readLocations(const char *fileName, Graph<T> &graph);
 
+    /**
+     * * @brief Função que lê o ficheiro CSV com as distâncias e guarda-as dentro do grafo como arestas.
+     * * @param fileName O nome do ficheiro CSV com as distâncias.
+     * * @param graph O grafo onde vamos guardar as distâncias.
+     */
     template <class T>
     void readDistances(const char* fileName, Graph<T> &graph);
 
 
 };
 #endif // PARSE_H
-
+/**
+     * * @brief Função que lê o ficheiro CSV com as localizações e guarda-as dentro do grafo como vértices.
+     * * @param fileName O nome do ficheiro CSV com as localizações.
+     * * @param graph O grafo onde vamos guardar as localizações.
+     * * @return void: não devolve nada.
+     * * @details Location: nome do vértice.
+     * *          id: id do vértice.
+     * *          Code: código do vértice.
+     * *          Parking: se o vértice tem estacionamento ou não.
+     */
 template <class T>
 void Parse::readLocations(const char *fileName, Graph<T> &graph) {
     Algorithm algorithm;
@@ -51,7 +77,16 @@ void Parse::readLocations(const char *fileName, Graph<T> &graph) {
 
     file.close();
 }
-
+/**
+     * * @brief Função que lê o ficheiro CSV com as distâncias e guarda-as dentro do grafo como arestas.
+     * * @param fileName O nome do ficheiro CSV com as distâncias.
+     * * @param graph O grafo onde vamos guardar as distâncias.
+     * * @return void: não devolve nada.
+     * * @details Location1: nome do vértice 1.
+     * *          Location2: nome do vértice 2.
+     * *          Driving: distância entre os dois vértices a conduzir.
+     * *          Walking: distância entre os dois vértices a pé.
+     */
 
 template <class T>
 void Parse::readDistances(const char* fileName, Graph<T> &graph) {

@@ -1,4 +1,6 @@
 Source:8
 Destination:5
-BestDrivingRoute:8,4,2,3,5(31)
-AlternativeDrivingRoute:none
+DrivingRoute:8,4,2,3(19)
+ParkingNode:3
+WalkingRoute:3,5(10)
+TotalTime:29
