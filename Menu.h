@@ -7,10 +7,17 @@
 #include "graph.h"
 using namespace std;
 
+
+/**
+ * @class Menu
+ * @brief A classe oferece ao utilizador uma interface papra poder escolher o tipo de route e se é em BatchMode ou através de inputs.
+ */
 class Menu {
 public:
-    
-    void display(); // Declaration of the display() function
+    /**
+     * * @brief Função que fornce a interface para escolher o plano de rota.
+     */
+    void display(); 
 };
 
 #endif // MENU_H
@@ -58,18 +65,27 @@ void Menu::display() {
             cout << "-----------------------------\n";
             cout << "Enter 1 for batch mode or 2 for interactive mode:\n ";
             cout << "-----------------------------\n";
-            cin >> number3;
-            if (number3 == 1) {
-                algorithm.restricted_route_planningBatchMode(graph);
-            } else if (number3 == 2) {
-                algorithm.restricted_route_planningInteractiveMode(graph);
-            } else {
-                cout << "Invalid choice. Please try again." << endl;
-            }
+            cin >> number3;          
+            if (number3 == 1) algorithm.restricted_route_planningBatchMode(graph);
+            
+            else if (number3 == 2) algorithm.restricted_route_planningInteractiveMode(graph);
+            
+            else cout << "Invalid choice. Please try again." << endl;
+            
             break;
 
         case 3:
-            algorithm.ecoFriendlyRoutePlanning(graph);
+            int number4;
+            cout << "-----------------------------\n";
+            cout << "Enter 1 for batch mode or 2 for interactive mode:\n ";
+            cout << "-----------------------------\n";
+            cin >> number4;  
+            if (number4 == 1) algorithm.ecoFriendlyRoutePlanningBatchMode(graph);
+            
+            else if (number4 == 2) algorithm.ecoFriendlyRoutePlanningInteractiveMode(graph);
+        
+            else cout << "Invalid choice. Please try again." << endl;
+        
             break;
 ;
         default:

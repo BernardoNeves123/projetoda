@@ -524,15 +524,16 @@ void Algorithm::restricted_route_planningInteractiveMode(Graph<T> graph){
 }
 
 /**
- * * @brief Função que lê o input.txt e produz o restricted route planning, escreve o output.txt com os resultados.
+ * * @brief Função que lê o input.txt e produz o ecoFriendly route planning, escreve o output.txt com os resultados.
  * * @param graph O grafo onde vamos trabalhar, que produz as localizações com as distâncias.
  * * @return void: escreve dentro do output.txt, então não dá return a nada.
  * * @details A função lê o input.txt, que contém a origem, o destino, o tempo máximo a andar, os vértices para ignorar e as arestas a ignorar.
+ * * No grafo ignoramos os vértices e as arestas lidos no input.txt.
  * 
  */
 
 template <class T>
-void Algorithm::ecoFriendlyRoutePlanning(Graph<T> graph) {
+void Algorithm::ecoFriendlyRoutePlanningBatchMode(Graph<T> graph) {
     const char *fileName = "input.txt";
     ifstream inputFile(fileName);
 
@@ -542,6 +543,7 @@ void Algorithm::ecoFriendlyRoutePlanning(Graph<T> graph) {
     }
 
     // Variáveis para armazenar os dados do arquivo
+    T mode;
     T source, destination;
     int maxWalkTime;
     vector<T> avoidNodes;
@@ -672,3 +674,145 @@ void Algorithm::ecoFriendlyRoutePlanning(Graph<T> graph) {
     outputFile.close();
 }
 
+template<class T>
+void Algorithm::ecoFriendlyRoutePlanningInteractiveMode(Graph<T> graph){
+    cout << "Source:";
+    T source;
+    cin >> source;
+
+    int sourceIDx = graph.findVertexIdx(source);
+    Vertex<T> *sourceVertex1 = graph.getVertexSet()[sourceIDx]; //Vertex of the source
+    string code1 = sourceVertex1->getCode();
+
+    cout << "Destination:";
+    T destination;
+    cin >> destination;
+
+    int destIDx = graph.findVertexIdx(destination);
+    Vertex<T> *destVertex1 = graph.getVertexSet()[destIDx]; //Vertex for the destination
+    string code2 = destVertex1->getCode();
+
+    cout << "MaxWalkTime:";
+    int maxWalkTime;
+    cin >> maxWalkTime;
+
+    cout << "AvoidNodes: ";
+    string avoidNodesInput;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, avoidNodesInput); 
+    
+    vector<T> avoidNodes = getNumbers(avoidNodesInput);
+
+    for (const T &node : avoidNodes) {
+        if (auto v = graph.findVertex(node)) v->setIgnore(true);
+    }
+
+    cout << "AvoidSegments:";
+    string avoidSegmentsInput;
+    getline(cin, avoidSegmentsInput); 
+    vector<pair<T, T>> avoidSegments;
+    
+    
+    stringstream ss(avoidSegmentsInput);
+    string segment;
+    
+    while (getline(ss, segment, ')')) {
+        size_t open = segment.find('(');
+        size_t comma = segment.find(',', open + 1);
+
+        T src = segment.substr(open + 1, comma - open - 1);
+        T dest = segment.substr(comma + 1);
+
+        avoidSegments.emplace_back(src, dest);
+    }
+
+    for (const auto &[src, dest] : avoidSegments) {
+        if (auto e = graph.findEdge(src, dest)) e->setIgnore(true);
+    }
+
+
+    vector<Vertex<T> *> parkingNodes;
+    for (auto vertex : graph.getVertexSet()) {
+        if (vertex->getParking() && !vertex->isIgnore()) {
+            // Verificar se o nó é acessível de carro e a pé
+            dijkstra(&graph, source, "driving");
+            if (getPath(&graph, source, vertex->getCode()).empty()) continue;
+
+            dijkstra(&graph, vertex->getCode(), "walking");
+            if (getPath(&graph, vertex->getCode(), destination).empty()) continue;
+
+            parkingNodes.push_back(vertex);
+        }
+    }
+
+    struct ParkingOption {
+        Vertex<T> *parking;
+        int drivingTime;
+        int walkingTime;
+        int totalTime;
+    };
+
+    vector<ParkingOption> validOptions;
+    for (auto parking : parkingNodes) {
+        dijkstra(&graph, source, "driving");
+        int drivingTime = graph.findVertex(parking->getCode())->getDist();
+
+        dijkstra(&graph, parking->getCode(), "walking");
+        int walkingTime = graph.findVertex(destination)->getDist();
+
+        if (walkingTime <= maxWalkTime) {
+            validOptions.push_back({parking, drivingTime, walkingTime, drivingTime + walkingTime});
+        }
+    }
+
+    // Selecionar a melhor opção
+    if (validOptions.empty()) {
+        
+        cout << "Source:" << source << endl;
+        cout << "Destination:" << destination << endl;
+        cout << "DrivingRoute:" << endl;
+        cout << "ParkingNode:" << endl;
+        cout << "WalkingRoute:" << endl;
+        cout << "Message: No possible route with max. walking time of "<< maxWalkTime <<" minutes." << endl;
+  
+        return;
+    }
+
+    auto bestOption = *min_element(validOptions.begin(), validOptions.end(), [](const ParkingOption &a, const ParkingOption &b) {
+        if (a.totalTime != b.totalTime) return a.totalTime < b.totalTime;
+        return a.walkingTime > b.walkingTime;
+    });
+
+    
+    cout << "Source:" << source << endl;
+    cout << "Destination:" << destination << endl;
+
+    // Rota de direção
+    dijkstra(&graph, source, "driving");
+    vector<T> drivingRoute = getPath(&graph, source, bestOption.parking->getCode());
+    cout << "DrivingRoute:";
+    for (size_t i = 0; i < drivingRoute.size(); i++) {
+        int idx = graph.findVertexIdxCode(drivingRoute[i]);
+        cout << graph.getVertexSet()[idx]->getId();
+        if (i < drivingRoute.size() - 1) cout << ",";
+    }
+    cout << "(" << bestOption.drivingTime << ")" << endl;
+
+    // Nó de estacionamento
+    cout << "ParkingNode:" << bestOption.parking->getId() << endl;
+
+    // Rota de caminhada
+    dijkstra(&graph, bestOption.parking->getCode(), "walking");
+    vector<T> walkingRoute = getPath(&graph, bestOption.parking->getCode(), destination);
+    cout << "WalkingRoute:";
+    for (size_t i = 0; i < walkingRoute.size(); i++) {
+        int idx = graph.findVertexIdxCode(walkingRoute[i]);
+        cout << graph.getVertexSet()[idx]->getId();
+        if (i < walkingRoute.size() - 1) cout << ",";
+    }
+    cout << "(" << bestOption.walkingTime << ")" << endl;
+
+    // Tempo total
+    cout << "TotalTime:" << bestOption.totalTime << endl;
+    
+}
